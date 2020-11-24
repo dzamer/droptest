@@ -1,129 +1,37 @@
-#include <HX711_ADC.h>
-#include <EEPROM.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_LIS3DH.h>
 #include <Adafruit_Sensor.h>
 
-HX711_ADC LoadCell(4, 5);
+Pytałem o przycisk, na piny ustawiasz przycis i tranzystor i piszesz że jak tranzysotr ma stan niski to coś, a jak stan wysoki to coś. Koniec
 
 #define LIS3DH_CLK 13
-#define LIS3DH_MISO 12
-#define LIS3DH_MOSI 11
+#define LIS3DH_MOSI 12
+#define LIS3DH_MISO 11
 #define LIS3DH_CS 10
 
-Adafruit_LIS3DH accelerometer = Adafruit_LIS3DH();
+Adafruit_LIS3DH accelerometer = Adafruit_LIS3DH(LIS3DH_CS, LIS3DH_MOSI, LIS3DH_MISO, LIS3DH_CLK);
 
-
-boolean load_sensor_calibration_status = false;
-float calibration_scale_factor = 0.0;
 int reflection_sensor_connection_lower = 2;
 int reflection_sensor_connection_upper = 3;
 int reflection_sensor_out_lower;
 int reflection_sensor_out_upper;
-float load_sensor_out;
-float calValue;
-float knownMass;
-long t;
-long myTime;
 int switch_value;
-const int eepromAdress = 0;
 boolean waiting = 0;
 
-void Load_Sensor_Calibration() {
-  Serial.println("***");
-  if (LoadCell.getTareTimeoutFlag()) {
-    Serial.println("Tare timeout, check MCU>HX711 wiring and pin designations");
-  } else {
-    LoadCell.setCalFactor(1.0);
-    Serial.println("Load sensor tare complete");
-  }
-  delay(100);
-  Serial.println("Start calibration:");
-
-  boolean f = 0;
-  Serial.print("Enter calibration mass in kg, use ''.'' as separator: ");
-  while (f == 0) {
-    LoadCell.update();
-    if (Serial.available() > 0) {
-      knownMass = Serial.parseFloat();
-      if (knownMass > 0) {
-        Serial.print("Known mass is: ");
-        Serial.println(knownMass);
-        f = 1;
-      }
-    }
-  }
-  calibration_scale_factor = LoadCell.getData() / knownMass;
-  LoadCell.setCalFactor(calibration_scale_factor);
-  Serial.print("your scale factor is: ");
-  Serial.println(calibration_scale_factor);
-  LoadCell.update();
-  f = 0;
-  Serial.print("value saved to EEPROM adress ");
-  Serial.print(eepromAdress);
-  while (f == 0) {
-#if defined(ESP8266)
-    EEPROM.begin(512);
-#endif
-    EEPROM.put(eepromAdress, calibration_scale_factor);
-#if defined(ESP8266)
-    EEPROM.commit();
-#endif
-    EEPROM.get(eepromAdress, calibration_scale_factor);
-    Serial.print("Value ");
-    Serial.print(calibration_scale_factor);
-    Serial.print(" saved to EEPROM address: ");
-    Serial.println(eepromAdress);
-    f = 1;
-  }
-  waiting = 1;
-}
-
-void Load_Sensor_Run () {
-  float calValue; // calibration value
-  calValue = 2000.0; // uncomment this if you want to set this value in the sketch
-#if defined(ESP8266)
-  EEPROM.begin(512);
-#endif
-  EEPROM.get(eepromAdress, calValue);
-
-  if (LoadCell.getTareTimeoutFlag()) {
-    Serial.println("Tare timeout, check MCU>HX711 wiring and pin designations");
-  }
-  else {
-    LoadCell.setCalFactor(calValue); // set calibration value (float)
-    Serial.println("Startup + tare is complete");
-  }
-  waiting = 1;
-}
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(2000000);
   delay(100);
-  //  pinMode(2, INPUT);
-  LoadCell.begin();
-  long stabilisingtime = 2000;
-  LoadCell.start(stabilisingtime);
-
-  Serial.println("Choose load sensor option: ");
-  waiting = 0;
-  while (!waiting) {
-    int load_sensor_choosed = Serial.parseInt();
-    if (load_sensor_choosed != 0) {
-      switch (load_sensor_choosed) {
-        case 1:
-          Load_Sensor_Calibration();
-          break;
-        case 2:
-          Load_Sensor_Run();
-          break;
-      }
-    }
+  Serial.println("Starting...");
+  if (! accelerometer.begin(0x18)) {
+    Serial.println("Couldnt start");
+    while (1) yield();
   }
+  Serial.println("LIS3DH found!");
+
   delay(100);
-  Serial.println("Load sensor prepaired.");
   waiting = 0;
   int accelerometer_setRange;
   Serial.println("Choose accelerometer range: ");
@@ -221,11 +129,11 @@ void setup() {
   boolean entrance = 0;
   while (entrance == 0) {
     if (Serial.available() > 0) {
-      char entranceKey = Serial.read();
-      if (entranceKey == 'e') {
+      char entranceKey = Serial.parseInt();
+      if (entranceKey == 41) {
         Serial.println("Droptest started..");
         entrance = 1;
-        myTime = millis() + 3000;
+
 
       }
     }
@@ -235,37 +143,20 @@ void setup() {
 
 void loop() {
 
-  LoadCell.update();
-
-  while (myTime > millis()) {
-    if (millis() > 250) {
-      reflection_sensor_out_lower = digitalRead(reflection_sensor_connection_lower);
-      reflection_sensor_out_upper = digitalRead(reflection_sensor_connection_upper);
-      float mass = LoadCell.getData();
-      Serial.print(millis()); // first print time value
-      Serial.print(",");
-      Serial.print(mass);  // second print load sensor value
-      Serial.print(",");
-      Serial.print(reflection_sensor_out_upper); // 3rd print upper slotted reflection sensor
-      Serial.print(",");
-      Serial.print(reflection_sensor_out_lower); // 4th print lower slotted reflection sensor
-      Serial.print(",");
-      accelerometer.read(); // read data from all 3 axies
-      Serial.print(accelerometer.x); // read the axis-X
-      Serial.print(",");
-      Serial.print(accelerometer.y); // read the axis-Y
-      Serial.print(",");
-      Serial.print(accelerometer.z); // read the axis-Z
-      sensors_event_t event;
-      accelerometer.getEvent(&event);
-      Serial.print(event.acceleration.x);
-      Serial.print(",");
-      Serial.print(event.acceleration.y);
-      Serial.print(",");
-      Serial.print(event.acceleration.z);
-      Serial.println(";");
-    }
-  }
-
-  delay(200);
+  reflection_sensor_out_lower = digitalRead(reflection_sensor_connection_lower);
+  reflection_sensor_out_upper = digitalRead(reflection_sensor_connection_upper);
+  Serial.print(millis()); // first print time value
+  Serial.print(",");
+  Serial.print(reflection_sensor_out_upper); // 2nd print upper slotted reflection sensor
+  Serial.print(",");
+  Serial.print(reflection_sensor_out_lower); // 3rd print lower slotted reflection sensor
+  sensors_event_t event;
+  accelerometer.getEvent(&event);
+  Serial.print(",");
+  Serial.print(event.acceleration.x); // 4th print, reading in m/s2
+  Serial.print(",");
+  Serial.print(event.acceleration.y); // 5th print, reading in m/s2
+  Serial.print(",");
+  Serial.print(event.acceleration.z); // 6th print, reading in m/s2
+  Serial.println(";");
 }
