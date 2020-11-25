@@ -1,97 +1,13 @@
-from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
-from PyQt5.QtCore import QObject, QIODevice, pyqtSignal
+from PyQt5 import QtWidgets, uic
+import SerialPortConnection
+import ExcelSaveLoad
 import pyqtgraph as pg
 import sys
 import threading
 import math
-import datetime
-from openpyxl import load_workbook, Workbook
-
-
-class SerialPort(QObject):
-    mySerialPort = QSerialPort()
-    devicePortInfo = None
-    readedData = ""
-    dataToWrite = ""
-    deviceIsFound = False
-    deviceIsConnected = False
-    waitForReadyReadValue = 200
-    productIdentifier = 29987  # product ID to be set for device if other will be used (use serachForDevices if needed)
-    vendorIdentifier = 6790  # vendor ID to be set for device if other will be used (use serachForDevices if needed)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.search_for_devices()
-
-    # use serachForDevices if you need to get vendor and product ID for findDevice function
-    def search_for_devices(self):
-        device = QSerialPortInfo
-        availablePort = device.availablePorts()
-
-        i = 0
-        for portInfo in availablePort:
-            print("Device: {0}, product ID: {1}, vendor ID: {2}, Port name: {3}".format(i,
-                                                                                        portInfo.productIdentifier(),
-                                                                                        portInfo.vendorIdentifier(),
-                                                                                        portInfo.portName()))
-            i += 1
-
-    def find_device(self):
-        info = QSerialPortInfo
-        availablePorts = info.availablePorts()
-
-        for portInfo in availablePorts:
-            print(type(portInfo.productIdentifier()))
-            if portInfo.productIdentifier() == self.productIdentifier and portInfo.vendorIdentifier() \
-                    == self.vendorIdentifier:
-                self.devicePortInfo = portInfo
-                self.deviceIsFound = True
-                print("Device found at port: {0}".format(portInfo.portName))
-                break
-
-    def open_serial_port(self):
-        try:
-            self.mySerialPort.setPortName(str(self.devicePortInfo.portName()))
-            self.mySerialPort.open(QIODevice.ReadWrite)
-            self.mySerialPort.setBaudRate(2000000)
-            self.mySerialPort.setDataBits(self.mySerialPort.Data8)
-            print("Opening port {0}".format(self.mySerialPort.portName()))
-            self.mySerialPort.setDataTerminalReady(True)
-            self.deviceIsConnected = True
-            print(self.mySerialPort.isOpen())
-            print(self.mySerialPort.portName())
-            self.mySerialPort.startTransaction()
-            print(self.mySerialPort.isDataTerminalReady())
-            print(self.mySerialPort.isReadable())
-            print(self.mySerialPort.isWritable())
-            return self.mySerialPort
-        except Exception as e:
-            print("open_serial_port: ", e)
-            return None
-
-    def read_serial(self):
-        if self.deviceIsConnected:
-            self.mySerialPort.waitForReadyRead(self.waitForReadyReadValue)
-            temp = str(self.mySerialPort.readLineData(1024))
-            temp2 = temp.split("'")
-            temp3 = temp2[1].split("\\r")
-            self.readedData = temp3[0]
-        else:
-            print("Device not connected")
-            return
-
-    def write_serial(self):
-        if self.deviceIsConnected:
-            dataEncoded = self.dataToWrite.encode()
-            self.mySerialPort.write(dataEncoded)
-            print("You enter {0} to serial.".format(self.dataToWrite))
-        else:
-            print("Device not connected")
 
 
 class MainWindow(QtWidgets.QWidget):
-    signal1 = pyqtSignal(str)
     readingLines = False
     readingLoop = True
     readedDataFromArduino = []
@@ -131,7 +47,8 @@ class MainWindow(QtWidgets.QWidget):
         super(MainWindow, self).__init__(*args, **kwargs)
         uic.loadUi('DropTest.ui', self)
         self.setWindowTitle('Drop Test Window')
-        self.Arduino = SerialPort()
+        self.Arduino = SerialPortConnection.SerialPort()
+        self.ExcelOperations = ExcelSaveLoad.ExcelOperation()
         self.statusBar = QtWidgets.QStatusBar()
         # przyciski wszystkie sa włączone po to żeby szło aktualnie programem operować bez arduino
         # navigate buttons
@@ -175,7 +92,6 @@ class MainWindow(QtWidgets.QWidget):
         self.Button_readData.clicked.connect(self.plot_generating)
         self.Button_reset.setDisabled(True)
         self.Button_reset.clicked.connect(self.arduino_reading_exit)
-        self.plot_accelerometer(self.fullTimeDate, self.fullAccelerometerZDate, 'r', "Acce. Z")
         self.update()
 
     def read_date(self):
@@ -409,7 +325,14 @@ class MainWindow(QtWidgets.QWidget):
 
     def plot_generating(self):
         try:
-            self.load_from_excel()
+            self.ExcelOperations.load_from_excel("wyniki", "wyniki1")
+            for data in range(0, len(self.ExcelOperations.timeData)):
+                self.fullTimeDate.append(self.ExcelOperations.timeData[data])
+                self.fullUpperSensorDate.append(self.ExcelOperations.upperSensorData[data])
+                self.fullLowerSensorDate.append(self.ExcelOperations.lowerSensorData[data])
+                self.fullAccelerometerXDate.append(self.ExcelOperations.accelerometerXData[data])
+                self.fullAccelerometerYDate.append(self.ExcelOperations.accelerometerYData[data])
+                self.fullAccelerometerZDate.append(self.ExcelOperations.accelerometerZData[data])
             tempTime = self.fullTimeDate[0]
             for var3 in range(0, len(self.fullTimeDate)):
                 if self.fullTimeDate[var3] - self.fullTimeDate[0] == 0:
@@ -422,7 +345,7 @@ class MainWindow(QtWidgets.QWidget):
             self.impact_force_method_1_and_2()
 
             # label info1/2/3
-            self.save_to_excel()
+            # self.save_to_excel()
             self.label_info1.setText("Fall time: {0} [s]\n\n"
                                      "Reflection travel: {1} [m]\n\n"
                                      "Reflection time: {2} [s]\n\n"
@@ -514,42 +437,42 @@ class MainWindow(QtWidgets.QWidget):
         self.reflectionAcceleration = 2.0 * (
             math.sqrt(2.0 * (temp2/len(temp)) * abs(self.reflectionDistance))) / self.reflectionTime
 
-    def load_from_excel(self):
-        wb = load_workbook('wyniki.xlsx')
-        print(wb.sheetnames)
-        sheet = wb['wyniki2']
-        max_rows = sheet.max_row
-        for var in range(1, max_rows):
-            self.fullTimeDate.append(float(sheet.cell(row=var, column=1).value))
-            self.fullUpperSensorDate.append(float(sheet.cell(row=var, column=2).value))
-            self.fullLowerSensorDate.append(float(sheet.cell(row=var, column=3).value))
-            self.fullAccelerometerXDate.append(float(sheet.cell(row=var, column=4).value))
-            self.fullAccelerometerYDate.append(float(sheet.cell(row=var, column=5).value))
-            self.fullAccelerometerZDate.append(float(sheet.cell(row=var, column=6).value))
-
-    def save_to_excel(self):
-        workbook = Workbook()
-        worksheet = workbook.active
-        worksheet['A1'] = datetime.datetime.now()
-        worksheet['A2'] = "Time"
-        worksheet['B2'] = "Upper Sensor"
-        worksheet['C2'] = "Lower Sensor"
-        worksheet['D2'] = "Acce X"
-        worksheet['E2'] = "Acce Y"
-        worksheet['F2'] = "Acce Z"
-        worksheet['G2'] = "Reflection Travel: {}".format(self.reflectionDistance)
-        worksheet['H2'] = "Reflection Time: {}".format(self.reflectionTime)
-        worksheet['I2'] = "Fall time:{}".format(self.fallTime)
-        worksheet['J2'] = "Force from distance: {}".format(self.impactForceMethod1)
-        worksheet['K2'] = "Force from time: {}".format(self.impactForceMethod2)
-        for var in range(0, len(self.fullTimeDate)):
-            worksheet.cell(var + 3, 1, self.fullTimeDate[var])
-            worksheet.cell(var + 3, 2, self.fullUpperSensorDate[var])
-            worksheet.cell(var + 3, 3, self.fullLowerSensorDate[var])
-            worksheet.cell(var + 3, 4, self.fullAccelerometerXDate[var])
-            worksheet.cell(var + 3, 5, self.fullAccelerometerYDate[var])
-            worksheet.cell(var + 3, 6, self.fullAccelerometerZDate[var])
-        workbook.save("Wyniki5.xlsx")
+    # def load_from_excel(self):
+    #     wb = load_workbook('wyniki.xlsx')
+    #     print(wb.sheetnames)
+    #     sheet = wb['wyniki2']
+    #     max_rows = sheet.max_row
+    #     for var in range(1, max_rows):
+    #         self.fullTimeDate.append(float(sheet.cell(row=var, column=1).value))
+    #         self.fullUpperSensorDate.append(float(sheet.cell(row=var, column=2).value))
+    #         self.fullLowerSensorDate.append(float(sheet.cell(row=var, column=3).value))
+    #         self.fullAccelerometerXDate.append(float(sheet.cell(row=var, column=4).value))
+    #         self.fullAccelerometerYDate.append(float(sheet.cell(row=var, column=5).value))
+    #         self.fullAccelerometerZDate.append(float(sheet.cell(row=var, column=6).value))
+    #
+    # def save_to_excel(self):
+    #     workbook = Workbook()
+    #     worksheet = workbook.active
+    #     worksheet['A1'] = datetime.datetime.now()
+    #     worksheet['A2'] = "Time"
+    #     worksheet['B2'] = "Upper Sensor"
+    #     worksheet['C2'] = "Lower Sensor"
+    #     worksheet['D2'] = "Acce X"
+    #     worksheet['E2'] = "Acce Y"
+    #     worksheet['F2'] = "Acce Z"
+    #     worksheet['G2'] = "Reflection Travel: {}".format(self.reflectionDistance)
+    #     worksheet['H2'] = "Reflection Time: {}".format(self.reflectionTime)
+    #     worksheet['I2'] = "Fall time:{}".format(self.fallTime)
+    #     worksheet['J2'] = "Force from distance: {}".format(self.impactForceMethod1)
+    #     worksheet['K2'] = "Force from time: {}".format(self.impactForceMethod2)
+    #     for var in range(0, len(self.fullTimeDate)):
+    #         worksheet.cell(var + 3, 1, self.fullTimeDate[var])
+    #         worksheet.cell(var + 3, 2, self.fullUpperSensorDate[var])
+    #         worksheet.cell(var + 3, 3, self.fullLowerSensorDate[var])
+    #         worksheet.cell(var + 3, 4, self.fullAccelerometerXDate[var])
+    #         worksheet.cell(var + 3, 5, self.fullAccelerometerYDate[var])
+    #         worksheet.cell(var + 3, 6, self.fullAccelerometerZDate[var])
+    #     workbook.save("Wyniki5.xlsx")
 
     def plot_all(self, time, axis, color, name):
         pen = pg.mkPen(color=color, width=2)
