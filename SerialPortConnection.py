@@ -3,6 +3,13 @@ from PyQt5.QtCore import QIODevice
 
 
 class SerialPort:
+    """
+    Class created to communicate with Arduino, allowing to read/write data via serial port.
+    Product id and vendor id are set for specific Arduino board.
+    Ready for read value should be proper set for Arduino reading time (while testing the board
+    time value was approx 4ms during the test)
+    """
+
     mySerialPort = QSerialPort()
     devicePortInfo = None
     readedData = ""
@@ -17,7 +24,6 @@ class SerialPort:
         super().__init__(*args, **kwargs)
         self.search_for_devices()
 
-    # use serachForDevices if you need to get vendor and product ID for findDevice function
     def search_for_devices(self):
         device = QSerialPortInfo
         availablePort = device.availablePorts()
@@ -33,7 +39,6 @@ class SerialPort:
     def find_device(self):
         info = QSerialPortInfo
         availablePorts = info.availablePorts()
-
         for portInfo in availablePorts:
             print(type(portInfo.productIdentifier()))
             if portInfo.productIdentifier() == self.productIdentifier and portInfo.vendorIdentifier() \
@@ -44,7 +49,6 @@ class SerialPort:
                 break
 
     def open_serial_port(self):
-        try:
             self.mySerialPort.setPortName(str(self.devicePortInfo.portName()))
             self.mySerialPort.open(QIODevice.ReadWrite)
             self.mySerialPort.setBaudRate(2000000)
@@ -59,9 +63,6 @@ class SerialPort:
             print(self.mySerialPort.isReadable())
             print(self.mySerialPort.isWritable())
             return self.mySerialPort
-        except Exception as e:
-            print("open_serial_port: ", e)
-            return None
 
     def read_serial(self):
         if self.deviceIsConnected:

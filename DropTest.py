@@ -8,6 +8,15 @@ import math
 
 
 class MainWindow(QtWidgets.QWidget):
+
+    """
+    Main class to connect data, Arduino, GUI and calculation for impact force.
+    Assumptions:
+        * Comunicate with Arduino, DB and GUI,
+        * Making calculation for impact force based on Newton's law equations,
+        * Display results on graphs,
+    """
+
     readingLines = False
     readingLoop = True
     readedDataFromArduino = []
@@ -42,6 +51,7 @@ class MainWindow(QtWidgets.QWidget):
     mass = 2.0
     impactForceMethod1 = 0.0
     impactForceMethod2 = 0.0
+    counter = 0
 
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -57,9 +67,9 @@ class MainWindow(QtWidgets.QWidget):
         self.ConnectButton.clicked.connect(self.arduino_connection)
         # buttons to set accelerometer range
         self.Button_range_2G.setDisabled(True)
-        self.Button_range_2G.clicked.connect(self.button_clicked_2G)
-        self.Button_range_4G.setDisabled(True)
-        self.Button_range_4G.clicked.connect(self.button_clicked_4G)
+        # self.Button_range_2G.clicked.connect(self.test("12", 2))
+        # self.Button_range_4G.setDisabled(True)
+        # self.Button_range_4G.clicked.connect(self.test("13", 2))
         self.Button_range_8G.setDisabled(True)
         self.Button_range_8G.clicked.connect(self.button_clicked_8G)
         self.Button_range_16G.setDisabled(True)
@@ -88,7 +98,7 @@ class MainWindow(QtWidgets.QWidget):
         self.Button_start_test.setDisabled(True)
         self.Button_start_test.clicked.connect(self.button_start)
         # temporary buttons
-        self.Button_readData.setDisabled(True)
+        # self.Button_readData.setDisabled(True)
         self.Button_readData.clicked.connect(self.plot_generating)
         self.Button_reset.setDisabled(True)
         self.Button_reset.clicked.connect(self.arduino_reading_exit)
@@ -126,15 +136,12 @@ class MainWindow(QtWidgets.QWidget):
         self.Button_readData.setDisabled(False)
 
     def arduino_connection(self):
-        try:
             self.Arduino.find_device()
             self.Arduino.open_serial_port()
             thread = threading.Thread(target=self.read_data_in_loop)
             thread.start()
             if self.Arduino.mySerialPort.isOpen():
                 self.range_button_enabling()
-        except Exception as e:
-            self.statusBar.showMessage("Arduino connection: {}".format(e), 2500)
 
     def range_button_enabling(self):
         self.Button_range_2G.setDisabled(False)
@@ -173,158 +180,112 @@ class MainWindow(QtWidgets.QWidget):
         self.pushButton_data_rate_power_down.setDisabled(True)
 
     def button_clicked_2G(self):
-        try:
             self.clickedButtonData = "12"
             self.data_rate_button_enabling()
             self.textBrowser_main.append("Accelerometer range set to: {0}".format(self.clickedButtonData))
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.range_button_disabling()
-        except Exception as e:
-            self.statusBar.showMessage("Range button: {}".format(e, 2500))
 
     def button_clicked_4G(self):
-        try:
             self.clickedButtonData = "13"
             self.data_rate_button_enabling()
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.range_button_disabling()
-        except Exception as e:
-            self.statusBar.showMessage("Range button: {}".format(e, 2500))
 
     def button_clicked_8G(self):
-        try:
             self.clickedButtonData = "14"
             self.data_rate_button_enabling()
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.range_button_disabling()
-        except Exception as e:
-            self.statusBar.showMessage("Range button: {}".format(e, 2500))
 
     def button_clicked_16G(self):
-        try:
             self.clickedButtonData = "15"
             self.data_rate_button_enabling()
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.range_button_disabling()
-        except Exception as e:
-            self.statusBar.showMessage("Range button: {}".format(e, 2500))
 
     def button_clicked_1Hz(self):
-        try:
             self.clickedButtonData = "21"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_10Hz(self):
-        try:
             self.clickedButtonData = "22"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_25Hz(self):
-        try:
             self.clickedButtonData = "23"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_50Hz(self):
-        try:
             self.clickedButtonData = "24"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_100Hz(self):
-        try:
             self.clickedButtonData = "25"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_200Hz(self):
-        try:
             self.clickedButtonData = "26"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_400Hz(self):
-        try:
             self.clickedButtonData = "27"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_5KHz(self):
-        try:
             self.clickedButtonData = "28"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_16KHz(self):
-        try:
             self.clickedButtonData = "29"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.range_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_clicked_power_down(self):
-        try:
             self.clickedButtonData = "30"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.data_rate_button_disabling()
             self.Button_start_test.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def button_start(self):
-        try:
             self.clickedButtonData = "41"
             self.Arduino.dataToWrite = self.clickedButtonData
             self.Arduino.write_serial()
             self.textBrowser_main.append("Loading sensors data...")
             self.Button_reset.setDisabled(False)
-        except Exception as e:
-            self.statusBar.showMessage("Data button: {}".format(e, 2500))
 
     def plot_generating(self):
-        try:
             self.ExcelOperations.load_from_excel("wyniki", "wyniki1")
             for data in range(0, len(self.ExcelOperations.timeData)):
                 self.fullTimeDate.append(self.ExcelOperations.timeData[data])
@@ -376,19 +337,11 @@ class MainWindow(QtWidgets.QWidget):
                     tempLowerSensor.append(self.fullLowerSensorDate[var])
                     tempUpperSensor.append(self.fullUpperSensorDate[var])
                     tempTime1.append(self.fullTimeDate[var])
-            # jesli wykresy maja wyswietlic wszystko
-            # self.plot_all(self.fullTimeDate, self.fullAccelerometerXDate, 'g', "Acce. X")
-            # self.plot_all(self.fullTimeDate, self.fullAccelerometerYDate, 'y', "Acce. Y")
-            # self.plot_all(self.fullTimeDate, self.fullAccelerometerZDate, 'c', "Acce. Z")
-            # self.plot_all(self.fullTimeDate, self.fullUpperSensorDate, 'b', "S. Upper")
-            # self.plot_all(self.fullTimeDate, self.fullLowerSensorDate, 'r', "S. Lower")
             self.plot_all(tempTime1, tempAcceX, 'b', "Acce. X")
             self.plot_all(tempTime1, tempAcceY, 'g', "Acce. Y")
             self.plot_all(tempTime1, tempAcceZ, 'r', "Acce. Z")
             self.plot_all(tempTime1, tempUpperSensor, 'y', "S. Upper")
             self.plot_all(tempTime1, tempLowerSensor, 'c', "S. Lower")
-        except Exception as e:
-            self.statusBar.showMessage("Plot generating: {}".format(e), 25000)
 
     def fall_time(self):
         for var in range(0, len(self.fullUpperSensorDate)):
@@ -436,43 +389,6 @@ class MainWindow(QtWidgets.QWidget):
         self.reflectionTime = (temp[len(temp) - 1] - temp[0])
         self.reflectionAcceleration = 2.0 * (
             math.sqrt(2.0 * (temp2/len(temp)) * abs(self.reflectionDistance))) / self.reflectionTime
-
-    # def load_from_excel(self):
-    #     wb = load_workbook('wyniki.xlsx')
-    #     print(wb.sheetnames)
-    #     sheet = wb['wyniki2']
-    #     max_rows = sheet.max_row
-    #     for var in range(1, max_rows):
-    #         self.fullTimeDate.append(float(sheet.cell(row=var, column=1).value))
-    #         self.fullUpperSensorDate.append(float(sheet.cell(row=var, column=2).value))
-    #         self.fullLowerSensorDate.append(float(sheet.cell(row=var, column=3).value))
-    #         self.fullAccelerometerXDate.append(float(sheet.cell(row=var, column=4).value))
-    #         self.fullAccelerometerYDate.append(float(sheet.cell(row=var, column=5).value))
-    #         self.fullAccelerometerZDate.append(float(sheet.cell(row=var, column=6).value))
-    #
-    # def save_to_excel(self):
-    #     workbook = Workbook()
-    #     worksheet = workbook.active
-    #     worksheet['A1'] = datetime.datetime.now()
-    #     worksheet['A2'] = "Time"
-    #     worksheet['B2'] = "Upper Sensor"
-    #     worksheet['C2'] = "Lower Sensor"
-    #     worksheet['D2'] = "Acce X"
-    #     worksheet['E2'] = "Acce Y"
-    #     worksheet['F2'] = "Acce Z"
-    #     worksheet['G2'] = "Reflection Travel: {}".format(self.reflectionDistance)
-    #     worksheet['H2'] = "Reflection Time: {}".format(self.reflectionTime)
-    #     worksheet['I2'] = "Fall time:{}".format(self.fallTime)
-    #     worksheet['J2'] = "Force from distance: {}".format(self.impactForceMethod1)
-    #     worksheet['K2'] = "Force from time: {}".format(self.impactForceMethod2)
-    #     for var in range(0, len(self.fullTimeDate)):
-    #         worksheet.cell(var + 3, 1, self.fullTimeDate[var])
-    #         worksheet.cell(var + 3, 2, self.fullUpperSensorDate[var])
-    #         worksheet.cell(var + 3, 3, self.fullLowerSensorDate[var])
-    #         worksheet.cell(var + 3, 4, self.fullAccelerometerXDate[var])
-    #         worksheet.cell(var + 3, 5, self.fullAccelerometerYDate[var])
-    #         worksheet.cell(var + 3, 6, self.fullAccelerometerZDate[var])
-    #     workbook.save("Wyniki5.xlsx")
 
     def plot_all(self, time, axis, color, name):
         pen = pg.mkPen(color=color, width=2)

@@ -3,6 +3,14 @@ import datetime
 
 
 class ExcelOperation:
+
+    """
+    Class allow to load and save data to excel, solution to be used before data base will be proper set
+    Assumptions:
+        * Load data from excel file "wyniki"
+        * Save data to new excel file
+    """
+
     timeData = []
     upperSensorData = []
     lowerSensorData = []

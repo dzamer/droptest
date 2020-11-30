@@ -47,24 +47,10 @@
         <layout class="QGridLayout" name="gridLayout_11">
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout_10">
-           <item row="0" column="3">
-            <widget class="QPushButton" name="SearchForDevices">
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>Search for Devices</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="ConnectButton">
-             <property name="text">
-              <string>Connect</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="4">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Accelerometer Option&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -75,119 +61,28 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="4" rowspan="8" colspan="3">
-            <widget class="QTextBrowser" name="textBrowser_main"/>
-           </item>
-           <item row="3" column="3">
-            <widget class="QLabel" name="label_5">
+           <item row="0" column="3">
+            <widget class="QPushButton" name="SearchForDevices">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Data Rate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Search for Devices</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLabel" name="label_4">
+           <item row="12" column="0" colspan="2">
+            <widget class="QPushButton" name="Button_reset">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Range&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Stop Test</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="3" rowspan="2">
-            <layout class="QGridLayout" name="gridLayout_2">
-             <property name="spacing">
-              <number>1</number>
+           <item row="10" column="0" colspan="4">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-             <item row="0" column="0">
-              <widget class="QPushButton" name="Button_data_rate_1Hz">
-               <property name="text">
-                <string>1Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="Button_data_rate_10Hz">
-               <property name="text">
-                <string>10Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="Button_data_rate_25Hz">
-               <property name="text">
-                <string>25Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="Button_data_rate_50Hz">
-               <property name="text">
-                <string>50Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QPushButton" name="Button_data_rate_100Hz">
-               <property name="text">
-                <string>100Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QPushButton" name="Button_data_rate_200Hz">
-               <property name="text">
-                <string>200Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QPushButton" name="Button_data_rate_400Hz">
-               <property name="text">
-                <string>400Hz</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="pushButton_data_rate_5KHz_lp">
-               <property name="text">
-                <string>5KHz Low Power</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QPushButton" name="pushButton_data_rate_16KHz_lp">
-               <property name="text">
-                <string>16KHz Low Power</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QPushButton" name="pushButton_data_rate_power_down">
-               <property name="text">
-                <string>Power Down</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            </widget>
            </item>
-           <item row="6" column="3" rowspan="2">
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <widget class="QPushButton" name="Button_readData">
-               <property name="text">
-                <string>Generate Plots</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="Button_exit">
-               <property name="text">
-                <string>Exit</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="4" column="0" rowspan="2" colspan="2">
+           <item row="5" column="0">
             <layout class="QVBoxLayout" name="verticalLayout">
              <property name="spacing">
               <number>1</number>
@@ -222,17 +117,167 @@
              </item>
             </layout>
            </item>
-           <item row="6" column="0" colspan="2">
+           <item row="7" column="3">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Choose test to load&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="3">
+            <widget class="QPushButton" name="Button_load">
+             <property name="text">
+              <string>Load</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4" rowspan="13" colspan="3">
+            <widget class="QTextBrowser" name="textBrowser_main"/>
+           </item>
+           <item row="6" column="0" colspan="4">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="3" rowspan="2">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QPushButton" name="Button_readData">
+               <property name="text">
+                <string>Generate Plots</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="Button_exit">
+               <property name="text">
+                <string>Exit</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Save test to data base&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0" colspan="2">
             <widget class="QPushButton" name="Button_start_test">
              <property name="text">
               <string>Start Test</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
-            <widget class="QPushButton" name="Button_reset">
+           <item row="8" column="3">
+            <widget class="QComboBox" name="comboBox_database"/>
+           </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="ConnectButton">
              <property name="text">
-              <string>Stop Test</string>
+              <string>Connect</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Data Rate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QPushButton" name="Button_save">
+             <property name="text">
+              <string>Save</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2" colspan="2">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item row="3" column="1">
+              <widget class="QPushButton" name="pushButton_data_rate_5KHz_lp">
+               <property name="text">
+                <string>5KHz Low Power</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="Button_data_rate_1Hz">
+               <property name="text">
+                <string>1Hz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="Button_data_rate_25Hz">
+               <property name="text">
+                <string>25Hz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QPushButton" name="pushButton_data_rate_16KHz_lp">
+               <property name="text">
+                <string>16KHz Low Power</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QPushButton" name="Button_data_rate_200Hz">
+               <property name="text">
+                <string>200Hz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="Button_data_rate_10Hz">
+               <property name="text">
+                <string>10Hz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QPushButton" name="pushButton_data_rate_power_down">
+               <property name="text">
+                <string>Power Down</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QPushButton" name="Button_data_rate_100Hz">
+               <property name="text">
+                <string>100Hz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="Button_data_rate_50Hz">
+               <property name="text">
+                <string>50Hz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QPushButton" name="Button_data_rate_400Hz">
+               <property name="text">
+                <string>400Hz</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0" colspan="4">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Accelerometer Option&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
